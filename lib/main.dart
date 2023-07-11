@@ -3,6 +3,7 @@ import 'package:http/http.dart';
 import 'dart:convert';
 
 void main() => runApp(const MyApp());
+List a = [];
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -49,9 +50,30 @@ class _MyHomePageState extends State<MyHomePage> {
           builder: (BuildContext buildContext, AsyncSnapshot snapshot) {
             if (snapshot.hasData) {
               return ListView.builder(
-                  itemCount: snapshot.data.length,
+                  itemCount: 10,
                   itemBuilder: (BuildContext buildContext, int index) {
-                    return ListTile(title: Text(snapshot.data[index]['name']));
+                    return Card(
+                      margin: const EdgeInsets.all(16),
+                      elevation: 0.9,
+                      surfaceTintColor: Colors.cyan,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text(snapshot.data[index]['name'] + "Name: "),
+                          const Spacer(
+                            flex: 1,
+                          ),
+                          Text(snapshot.data[index]['address']['street'] +
+                              "Location: "),
+                          Expanded(
+                              child: Image.network(
+                            a[index]["download_url"],
+                            height: 150,
+                            width: 150,
+                          ))
+                        ],
+                      ),
+                    );
                   });
             } else {
               return const CircularProgressIndicator();
@@ -64,5 +86,8 @@ class _MyHomePageState extends State<MyHomePage> {
 fetchPosts() async {
   Response response =
       await get(Uri.https('jsonplaceholder.typicode.com', 'users'));
-  return jsonDecode(response.body);
+  Response imgResponse = await get(Uri.https("picsum.photos", "v2/list"));
+  final decoded = jsonDecode(response.body);
+  a = jsonDecode(imgResponse.body);
+  return decoded;
 }
