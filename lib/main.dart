@@ -28,11 +28,14 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  Future<dynamic> data() async {
+    return await fetchPosts();
+  }
+
   @override
   void initState() {
-    // TODO: implement initState
+    data();
     super.initState();
-    fetchPosts();
   }
 
   @override
@@ -41,28 +44,25 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Center(
-        child: Column(
-          children: [
-            Expanded(
-              child: ListView.builder(
-                  itemCount: 20,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      title: Text(fetchPosts().toString()),
-                    );
-                  }),
-            )
-          ],
-        ),
-      ),
+      body: FutureBuilder(
+          future: data(),
+          builder: (BuildContext buildContext, AsyncSnapshot snapshot) {
+            if (snapshot.hasData) {
+              return ListView.builder(
+                  itemCount: snapshot.data.length,
+                  itemBuilder: (BuildContext buildContext, int index) {
+                    return ListTile(title: Text(snapshot.data[index]['name']));
+                  });
+            } else {
+              return const CircularProgressIndicator();
+            }
+          }),
     );
   }
 }
 
-fetchPosts<Map>() async {
-  final url = Uri.https("jsonplaceholder.typicode.com", "users");
-  var response = await get(url);
-  final darr = jsonDecode(response.body);
-  return darr;
+fetchPosts() async {
+  Response response =
+      await get(Uri.https('jsonplaceholder.typicode.com', 'users'));
+  return jsonDecode(response.body);
 }
