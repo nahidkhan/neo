@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
+import 'dart:convert';
 
 void main() => runApp(const MyApp());
 
@@ -27,6 +29,13 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    fetchPosts();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -40,7 +49,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   itemCount: 20,
                   itemBuilder: (context, index) {
                     return ListTile(
-                      title: Text(index.toString()),
+                      title: Text(fetchPosts().toString()),
                     );
                   }),
             )
@@ -49,4 +58,11 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
+}
+
+fetchPosts<Map>() async {
+  final url = Uri.https("jsonplaceholder.typicode.com", "users");
+  var response = await get(url);
+  final darr = jsonDecode(response.body);
+  return darr;
 }
